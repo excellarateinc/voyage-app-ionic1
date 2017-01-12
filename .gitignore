@@ -8,5 +8,4 @@ plugins/
 www/
 src/lib/
 
-config.xml
 *.iml
