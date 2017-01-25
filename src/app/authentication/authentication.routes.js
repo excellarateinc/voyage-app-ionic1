@@ -2,7 +2,7 @@
   'use strict';
 
   angular
-    .module('launchpadApp.authentication')
+    .module('voyage.authentication')
     .run(appRun);
 
   function appRun(routerHelper, authenticationService) {

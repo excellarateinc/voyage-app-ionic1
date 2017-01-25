@@ -134,6 +134,19 @@ function test(done) {
   }, done).start();
 }
 
+/**
+ * Generates ngDocs documentation
+ */
+gulp.task('ngdocs', [], function () {
+  var options = {
+    html5Mode: true,
+    title: "Voyage Angular Docs"
+  };
+
+  return gulp.src(paths.js)
+    .pipe(plugins.ngdocs.process(options))
+    .pipe(gulp.dest('./docs'));
+});
 
 /**
  * Takes all non-test JavaScript files and run ESLint on them with default formatting.
@@ -174,7 +187,7 @@ function generateConstants() {
   const environmentConfig = configJson[process.env.NODE_ENV || 'development'];
 
   return plugins.ngConstant({
-    name: 'launchpadApp.constants',
+    name: 'voyage.constants',
     constants: environmentConfig,
     wrap: false,
     stream: true,
