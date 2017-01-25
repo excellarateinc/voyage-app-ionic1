@@ -2,7 +2,7 @@
   'use strict';
 
   angular
-    .module('launchpadApp.dashboard')
+    .module('voyage.dashboard')
     .controller('DashboardController', DashboardController);
 
   DashboardController.$inject = ['$http', '$log', 'API_URL'];

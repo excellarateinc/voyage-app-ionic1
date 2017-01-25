@@ -1,33 +1,87 @@
 (function () {
   'use strict';
 
+  /**
+   * @ngdoc service
+   * @name authentication.service:authenticationService
+   * @description
+   * Handles oauth2 business logic
+   */
   angular
-    .module('launchpadApp.authentication')
+    .module('voyage.authentication')
     .factory('authenticationService', authenticationService);
 
-  authenticationService.$inject = ['$http', '$location', '$rootScope', '$q', '$state', '$ionicHistory', '$cordovaInAppBrowser', 'tokenService', 'API_URL', 'SERVER_URL'];
+  authenticationService.$inject = ['$window', '$http', '$location', '$rootScope', '$state', '$injector', 'tokenService', 'platformHelper', 'API_URL', 'SERVER_URL'];
 
-  function authenticationService($http, $location, $rootScope, $q, $state, $ionicHistory, $cordovaInAppBrowser, tokenService, API_URL, SERVER_URL) {
+  function authenticationService($window, $http, $location, $rootScope, $state, $injector, tokenService, platformHelper, API_URL, SERVER_URL) {
+    let $ionicHistory;
+    let $cordovaInAppBrowser;
+
+    const CLIENT_ID = 'client-super';
+    const REDIRECT_URI = 'http://localhost:3000/#/?fix=1';
+    const RESPONSE_TYPE = 'token';
+
+    if (platformHelper.isIonic()) {
+      $ionicHistory = $injector.get('$ionicHistory');
+      $cordovaInAppBrowser = $injector.get('$cordovaInAppBrowser');
+    }
 
     return {
       initialize,
-      ionicLogin,
+      goToOauthLogin,
       register,
       logout
     };
 
+    /**
+     * @ngdoc method
+     * @name initialize
+     * @methodOf authentication.service:authenticationService
+     * @description
+     * To be run on app startup.  Redirects to the login page if no auth token is found.  Detects if the
+     * app is being started via a redirect from the oauth process.  If so grabs the token, stores it, and places it
+     * on the http header.
+     */
     function initialize() {
       redirectToLoginIfNoToken();
       handleEntryFromOauthRedirect();
-      placeTokenOnHttpHeader();
     }
 
-    function ionicLogin() {
-      const onLoadStart = $rootScope.$on('$cordovaInAppBrowser:loadstart', ionicOnOauthCallbackStoreToken); // eslint-disable-line no-unused-vars
+    /**
+     * @ngdoc method
+     * @name goToOauthLogin
+     * @methodOf authentication.service:authenticationService
+     * @description
+     * Triggers navigation to the oauth login screen.  When Voyage is running as a mobile app the login screen will open
+     * in an in app browser.
+     */
+    function goToOauthLogin() {
+      const oauthUrl = `${ SERVER_URL }/oauth/authorize?client_id=${ CLIENT_ID }&redirect_uri=${ encodeURIComponent(REDIRECT_URI) }&response_type=${ RESPONSE_TYPE }`;
 
-      ionicOpenOauthInAppBrowser();
+      if (platformHelper.isRunningAsMobileApp()) {
+        const onLoadStart = $rootScope.$on('$cordovaInAppBrowser:loadstart', ionicOnOauthCallbackStoreToken); // eslint-disable-line no-unused-vars
+        $cordovaInAppBrowser.open(oauthUrl);
+        return;
+      }
+
+      $window.location.href = oauthUrl;
     }
 
+    /**
+     * @ngdoc method
+     * @name register
+     * @methodOf authentication.service:authenticationService
+     * @description
+     * Registers new users
+     *
+     * @param {string} email User's email
+     * @param {string} firstName User's first name
+     * @param {string} lastName User's last name
+     * @param {string} password Users's password
+     * @param {string} confirmPassword User's password
+     *
+     * @returns {Promise} A promise that will resolve with the data returned by the register api endpoint
+     */
     function register(email, firstName, lastName, password, confirmPassword) {
       const user = {
         email,
@@ -38,10 +92,16 @@
       };
 
       return $http.post(`${API_URL}/account/register`, user)
-        .then(response => response.data)
-        .catch(failure => $q.reject(failure.data));
+        .then(response => response.data);
     }
 
+    /**
+     * @ngdoc method
+     * @name logout
+     * @methodOf authentication.service:authenticationService
+     * @description
+     * Deletes the authentication token from local storage and redirects to the login page
+     */
     function logout() {
       tokenService.deleteToken();
       $state.go('login');
@@ -60,6 +120,7 @@
         const expiresIn = parseInt($location.search().expires_in);
         const expirationDate = convertExpiresInSecondsToExpirationDate(expiresIn);
         tokenService.setToken(accessToken, expirationDate);
+        placeTokenOnHttpHeader();
       }
     }
 
@@ -83,31 +144,6 @@
       return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
 
-    function ionicOpenOauthInAppBrowser() {
-      const formHtml = removeExcessFormatting(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <script>
-            window.onload = function() {
-              document.loginForm.submit();
-            }
-          </script>
-        </head>
-        <body>
-          <form name="loginForm" method="POST" action="${ SERVER_URL }/oauth/authorize">
-            <input id="client_id" type="hidden" name="client_id" value="client-super" />
-            <input id="redirect_uri" type="hidden" name="redirect_uri" value="http://localhost:3000/#/?fix=1" />
-            <input id="response_type" type="hidden" name="response_type" value="token"/>
-            <input id="state" type="hidden" name="state" value="test" />
-          </form>
-        </body>
-        </html>
-      `);
-
-      $cordovaInAppBrowser.open(`data:text/html,${encodeURIComponent(formHtml)}`, '_blank');
-    }
-
     function ionicOnOauthCallbackStoreToken(angularEvent, inAppBrowserEvent) {
       const accessToken = getParameterByName('access_token', inAppBrowserEvent.url);
 
@@ -121,10 +157,6 @@
         $ionicHistory.clearCache()
           .then(() => $location.url('/'));
       }
-    }
-
-    function removeExcessFormatting(formHtml) {
-      return formHtml.replace(/\s+/g, ' ').trim();
     }
   }
 }());

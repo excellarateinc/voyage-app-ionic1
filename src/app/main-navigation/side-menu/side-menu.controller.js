@@ -2,7 +2,7 @@
   'use strict';
 
   angular
-    .module('launchpadApp.mainNavigation')
+    .module('voyage.mainNavigation')
     .controller('SideMenuController', SideMenuController);
 
   SideMenuController.$inject = [];
