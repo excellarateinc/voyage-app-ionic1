@@ -3,12 +3,13 @@ const concat = require('gulp-concat');
 const minifyCss = require('gulp-minify-css');
 const rename = require('gulp-rename');
 const runSequence = require('run-sequence');
+const wiredep = require('wiredep').stream;
 const plugins = require('gulp-load-plugins')();
 
 const paths = {
-  html: ['./src/**/*.html'],
+  markup: ['./src/**/*.html', './src/**/*.svg'],
   images: ['./src/img/**/*'],
-  sass: ['./src/scss/**/*.scss'],
+  sass: ['./scss/**/*.scss', './src/app/**/*.scss'],
   js: [
     './src/app/**/*.module.js',
     './src/app/**/*.js',
@@ -33,25 +34,33 @@ gulp.task('sass-lint', sassLint);
 // Generates environment constants like URL of the API
 gulp.task('generate-constants', generateConstants);
 
+gulp.task('serve', plugins.shell.task([
+  'ionic serve -p 3000'
+]));
+
+gulp.task('serve-lab', plugins.shell.task([
+  'ionic serve -p 3000 --lab'
+]));
+
 
 /**
  * Hook in to the Ionic tasks and run gulp tasks before them
  */
 
 gulp.task('serve:before', function(done) {
-  runSequence("copy-lib", "copy-images", "html", "babel", "sass", "watch", done)
+  runSequence('include-dev-js', "copy-lib", "copy-images", "markup", "babel", "sass", "watch", done)
 });
 
 gulp.task('emulate:before', function(done) {
-  runSequence("copy-lib", "copy-images", "html", "babel", "sass", done)
+  runSequence('include-dev-js', "copy-lib", "copy-images", "markup", "babel", "sass", done)
 });
 
 gulp.task('run:before', function(done) {
-  runSequence("copy-lib", "copy-images", "html", "babel", "sass", done)
+  runSequence('include-dev-js', "copy-lib", "copy-images", "markup", "babel", "sass", done)
 });
 
 gulp.task('build:before', function(done) {
-  runSequence("copy-lib", "copy-images", "html", "babel", "sass", done)
+  runSequence('include-dev-js', "copy-lib", "copy-images", "markup", "babel", "sass", done)
 });
 
 
@@ -84,7 +93,7 @@ gulp.task('watch', function() {
 
   gulp.watch(paths.sass, ['sass-lint', 'sass']);
   gulp.watch(paths.js, ['babel']);
-  gulp.watch(paths.html, ['html']);
+  gulp.watch(paths.markup, ['markup']);
   gulp.watch(paths.images, ['copy-images']);
 });
 
@@ -108,8 +117,8 @@ gulp.task('copy-images', function(done) {
     .on('end', done);
 });
 
-gulp.task('html', function(done) {
-  gulp.src(paths.html)
+gulp.task('markup', function(done) {
+  gulp.src(paths.markup)
     .pipe(gulp.dest('./www'))
     .on('end', done);
 });
@@ -163,6 +172,7 @@ function sassLint() {
 function generateConstants() {
   const configJson = require('./src/app/environment-constants/environment-constants.config.json');
   const environmentConfig = configJson[process.env.NODE_ENV || 'development'];
+
   return plugins.ngConstant({
     name: 'launchpadApp.constants',
     constants: environmentConfig,
@@ -178,21 +188,6 @@ function generateConstants() {
     .pipe(plugins.rename('constants.module.js'))
     .pipe(gulp.dest('./src/app/environment-constants/'));
 }
-
-/**
- * Uses wiredep to automatically insert script and css link tags for all Bower dependencies
- *
- * Opens index.html and look for <!-- bower:css --> and <!-- bower:js --> tags and inserts any dependencies from Bower.
- * Writes the resulting index.html file back to the src folder.
- */
-gulp.task('include-bower-dependencies', function () {
-  return gulp.src('src/index.html')
-    .pipe(wiredep({
-      directory: 'src/lib',
-      ignorePath: '..'
-    }))
-    .pipe(gulp.dest('src/'));
-});
 
 /**
  * Uses gulp-inject to insert script tags for all development JavaScript files (excluding tests) in the src folder.

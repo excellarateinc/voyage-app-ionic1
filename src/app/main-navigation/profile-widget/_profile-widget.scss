@@ -1,0 +1,62 @@
+profile-widget {
+
+  .profile-section-wrapper {
+    background-color: $sidebar-profile-section-background-color;
+    height: 120px;
+    margin-bottom: 15px;
+    overflow: hidden;
+  }
+
+  .sidebar.locked-open-add .profile-section-wrapper,
+  .sidebar.locked-open-remove .profile-section-wrapper {
+    display: none;
+  }
+
+  .profile-section-wrapper svg {
+    display: block;
+    fill: $sidebar-profile-section-color;
+    height: 200px;
+    margin-left: 90px;
+  }
+
+  .profile-section {
+    background: $profile-widget-background-overlay;
+    color: $profile-widget-color;
+    cursor: pointer;
+    height: 120px;
+    padding: 10px;
+    position: absolute;
+    top: 0;
+    width: $sidebar-width-mobile;
+  }
+
+  .profile-icon {
+    background-image: url('../img/profile-resize.jpg');
+    background-size: cover;
+    border-radius: 50%;
+    height: 55px;
+    margin-bottom: 10px;
+    min-width: 55px;
+    width: 55px;
+  }
+
+  .username {
+    font-weight: bold;
+  }
+
+  .profile-menu-item {
+    align-items: center;
+    color: $profile-widget-dropdown-item-color;
+    display: flex;
+    font-weight: 500;
+    height: 48px;
+    padding-left: 40px;
+  }
+
+  @include for-desktop-up {
+    .profile-section-wrapper,
+    .profile-sidebar {
+      display: none;
+    }
+  }
+}
