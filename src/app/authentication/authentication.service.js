@@ -11,15 +11,11 @@
     .module('voyage.authentication')
     .factory('authenticationService', authenticationService);
 
-  authenticationService.$inject = ['$window', '$http', '$location', '$rootScope', '$state', '$injector', 'tokenService', 'platformHelper', 'API_URL', 'SERVER_URL'];
+  authenticationService.$inject = ['$window', '$http', '$location', '$rootScope', '$state', '$injector', 'tokenService', 'platformHelper', 'API_URL', 'SERVER_URL', 'OAUTH_CLIENT_ID', 'OAUTH_REDIRECT_URL'];
 
-  function authenticationService($window, $http, $location, $rootScope, $state, $injector, tokenService, platformHelper, API_URL, SERVER_URL) {
+  function authenticationService($window, $http, $location, $rootScope, $state, $injector, tokenService, platformHelper, API_URL, SERVER_URL, OAUTH_CLIENT_ID, OAUTH_REDIRECT_URL) {
     let $ionicHistory;
     let $cordovaInAppBrowser;
-
-    const CLIENT_ID = 'client-super';
-    const REDIRECT_URI = 'http://localhost:3000/#/?fix=1';
-    const RESPONSE_TYPE = 'token';
 
     if (platformHelper.isIonic()) {
       $ionicHistory = $injector.get('$ionicHistory');
@@ -56,7 +52,7 @@
      * in an in app browser.
      */
     function goToOauthLogin() {
-      const oauthUrl = `${ SERVER_URL }/oauth/authorize?client_id=${ CLIENT_ID }&redirect_uri=${ encodeURIComponent(REDIRECT_URI) }&response_type=${ RESPONSE_TYPE }`;
+      const oauthUrl = `${ SERVER_URL }/oauth/authorize?client_id=${ OAUTH_CLIENT_ID }&redirect_uri=${ encodeURIComponent(OAUTH_REDIRECT_URL) }&response_type=${ RESPONSE_TYPE }`;
 
       if (platformHelper.isRunningAsMobileApp()) {
         const onLoadStart = $rootScope.$on('$cordovaInAppBrowser:loadstart', ionicOnOauthCallbackStoreToken); // eslint-disable-line no-unused-vars

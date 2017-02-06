@@ -1,6 +1,6 @@
 <ion-side-menus class="ion-side-menu module-container" enable-menu-with-back-views="true">
   <ion-side-menu-content>
-    <ion-nav-bar class="bar-stable" nav-bar-color>
+    <ion-nav-bar class="bar-stable">
       <ion-nav-back-button>
       </ion-nav-back-button>
       <ion-nav-buttons side="left">
@@ -11,27 +11,17 @@
   </ion-side-menu-content>
 
   <ion-side-menu side="left" width="290">
-    <ion-content class="navigation-menu">
-      <profile-widget></profile-widget>
-      <ion-list>
-        <ion-item class="item-icon-right" menu-close href="#/app/home">
-          <div class="centered-content row">
-            <div class="col title">home</div>
-          </div>
-        </ion-item>
-        <!-- badges -->
-        <ion-item class="item-icon-right" menu-close href="#/app/trophyCase">
-          <div class="centered-content row">
-            <div class="col title">badges</div>
-          </div>
-        </ion-item>
-        <!-- about us -->
-        <ion-item class="item-icon-right" menu-close href="#/app/aboutUs">
-          <div class="centered-content row">
-            <div class="col title button-margin">about</div>
-          </div>
-        </ion-item>
-      </ion-list>
-    </ion-content>
+    <profile-widget></profile-widget>
+    <ion-list>
+      <ion-item nav-clear menu-close href="#/app/search">
+        <i class="material-icons">dashboard</i> Search
+      </ion-item>
+      <ion-item nav-clear menu-close href="#/app/browse">
+        Browse
+      </ion-item>
+      <ion-item nav-clear menu-close href="#/app/playlists">
+        Playlists
+      </ion-item>
+    </ion-list>
   </ion-side-menu>
 </ion-side-menus>

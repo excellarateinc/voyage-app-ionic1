@@ -6,6 +6,7 @@
   },
   "dependencies": {
     "angular-cookies": "1.5.3",
-    "ngCordova": "^0.1.27-alpha"
+    "ngCordova": "^0.1.27-alpha",
+    "angular-chart.js": "^1.1.1"
   }
 }

@@ -10,6 +10,7 @@ const paths = {
   markup: ['./src/**/*.html', './src/**/*.svg'],
   images: ['./src/img/**/*'],
   sass: ['./scss/**/*.scss', './src/app/**/*.scss'],
+  fonts: ['./src/fonts/**/*.ttf'],
   js: [
     './src/app/**/*.module.js',
     './src/app/**/*.js',
@@ -48,19 +49,19 @@ gulp.task('serve-lab', plugins.shell.task([
  */
 
 gulp.task('serve:before', function(done) {
-  runSequence('include-dev-js', "copy-lib", "copy-images", "markup", "babel", "sass", "watch", done)
+  runSequence('include-dev-js', "copy-lib", 'copy-fonts', "copy-images", "markup", "babel", "sass", "watch", done)
 });
 
 gulp.task('emulate:before', function(done) {
-  runSequence('include-dev-js', "copy-lib", "copy-images", "markup", "babel", "sass", done)
+  runSequence('include-dev-js', "copy-lib", 'copy-fonts', "copy-images", "markup", "babel", "sass", done)
 });
 
 gulp.task('run:before', function(done) {
-  runSequence('include-dev-js', "copy-lib", "copy-images", "markup", "babel", "sass", done)
+  runSequence('include-dev-js', "copy-lib", 'copy-fonts', "copy-images", "markup", "babel", "sass", done)
 });
 
 gulp.task('build:before', function(done) {
-  runSequence('include-dev-js', "copy-lib", "copy-images", "markup", "babel", "sass", done)
+  runSequence('include-dev-js', "copy-lib", 'copy-fonts', "copy-images", "markup", "babel", "sass", done)
 });
 
 
@@ -114,6 +115,12 @@ gulp.task('copy-images', function(done) {
   gulp.src(paths.images)
     .pipe(plugins.imagemin())
     .pipe(gulp.dest('./www/img'))
+    .on('end', done);
+});
+
+gulp.task('copy-fonts', function(done) {
+  gulp.src('./src/fonts/*')
+    .pipe(gulp.dest('./www/fonts'))
     .on('end', done);
 });
 

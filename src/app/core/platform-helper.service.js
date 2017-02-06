@@ -39,7 +39,7 @@
      * @returns {Boolean} True if you are in the Ionic version of Voyage, false if you are in vanilla Angular
      */
     function isIonic() {
-      return angular.isDefined(ionic);
+      return typeof ionic !== "undefined"
     }
 
     /**
@@ -52,7 +52,7 @@
      * installed from app store, or run from XCode).
      */
     function isRunningAsMobileApp() {
-      return angular.isDefined(ionic) && ionic.Platform.isWebView();
+      return typeof ionic !== "undefined" && ionic.Platform.isWebView();
     }
 
     /**
@@ -65,7 +65,7 @@
      * on a real device, during 'ionic serve -lab' this will evaluate to true in the iOS iframe.
      */
     function isIOS() {
-      return angular.isDefined(ionic) && ionic.Platform.isIOS();
+      return typeof ionic !== "undefined" && ionic.Platform.isIOS();
     }
 
     /**
@@ -78,7 +78,7 @@
      * on a real device, during 'ionic serve -lab' this will evaluate to true in the Android iframe.
      */
     function isAndroid() {
-      return angular.isDefined(ionic) && ionic.Platform.isAndroid();
+      return typeof ionic !== "undefined" && ionic.Platform.isAndroid();
     }
   }
 
